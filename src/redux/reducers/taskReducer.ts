@@ -7,36 +7,27 @@ const initialState: TaskState = {
     projects: [],
 };
 
-const taskReducer = (state = initialState, action: any) => {
+
+const taskReducer = (
+    state = initialState,
+    action: {
+        type: string, payload?: any
+    }) => {
     switch (action.type) {
-        case 'SELECT_PROJECT':
-            return {
-                ...state,
-                projects: [...state.projects, action.payload],
-            };
-        case 'ADD_PROJECT':
-            return {
-                ...state,
-                projects: [...state.projects, action.payload],
-            };
-            case 'DELETE_PROJECT':
-                return {
-                    ...state,
-                    projects: state.projects.filter((project) => project.projectId !== action.payload),
-                };
-            
         case 'ADD_TASK':
             return {
                 ...state,
                 tasks: [...state.tasks, action.payload],
             };
+
         case 'EDIT_TASK':
             return {
                 ...state,
                 tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId ? { ...task, ...action.payload.updatedTask } : task
+                    task.id === action.payload.taskId ? action.payload.updatedTask : task
                 ),
             };
+
         case 'DELETE_TASK':
             return {
                 ...state,
@@ -46,79 +37,114 @@ const taskReducer = (state = initialState, action: any) => {
             return {
                 ...state,
                 tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId ? { ...task, status: action.payload.newStatus } : task
+                    task.id === action.payload.taskId
+                        ? { ...task, status: action.payload.newStatus }
+                        : task
                 ),
             };
         case 'ADD_SUBTASK':
             return {
                 ...state,
-                tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId
-                        ? { ...task, subtasks: [...(task.subtasks || []), action.payload.newSubtask] }
-                        : task
-                ),
+                tasks: state.tasks.map((task) => {
+                    if (task.id === action.payload.taskId) {
+                        return {
+                            ...task,
+                            subtasks: [...task.subtasks, action.payload.newSubtask],
+                        };
+                    }
+                    return task;
+                }),
             };
         case 'EDIT_SUBTASK':
             return {
                 ...state,
-                tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId
-                        ? {
+                tasks: state.tasks.map((task) => {
+                    if (task.id === action.payload.taskId) {
+                        return {
                             ...task,
                             subtasks: task.subtasks.map((subtask) =>
-                                subtask.id === action.payload.subtaskId ? { ...subtask, ...action.payload.updatedSubtask } : subtask
+                                subtask.id === action.payload.subtaskId
+                                    ? action.payload.updatedSubtask
+                                    : subtask
                             ),
-                        }
-                        : task
-                ),
+                        };
+                    }
+                    return task;
+                }),
             };
         case 'DELETE_SUBTASK':
             return {
                 ...state,
-                tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId
-                        ? { ...task, subtasks: (task.subtasks || []).filter((subtask) => subtask.id !== action.payload.subtaskId) }
-                        : task
-                ),
+                tasks: state.tasks.map((task) => {
+                    if (task.id === action.payload.taskId) {
+                        return {
+                            ...task,
+                            subtasks: task.subtasks.filter(
+                                (subtask) => subtask.id !== action.payload.subtaskId
+                            ),
+                        };
+                    }
+                    return task;
+                }),
             };
         case 'ADD_COMMENT':
             return {
                 ...state,
-                tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId
-                        ? { ...task, comments: [...(task.comments || []), action.payload.newComment] }
-                        : task
-                ),
+                tasks: state.tasks.map((task) => {
+                    if (task.id === action.payload.taskId) {
+                        return {
+                            ...task,
+                            comments: [...task.comments, action.payload.newComment],
+                        };
+                    }
+                    return task;
+                }),
             };
         case 'EDIT_COMMENT':
             return {
                 ...state,
-                tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId
-                        ? {
+                tasks: state.tasks.map((task) => {
+                    if (task.id === action.payload.taskId) {
+                        return {
                             ...task,
                             comments: task.comments.map((comment) =>
-                                comment.id === action.payload.commentId ? { ...comment, ...action.payload.updatedComment } : comment
+                                comment.id === action.payload.commentId
+                                    ? action.payload.updatedComment
+                                    : comment
                             ),
-                        }
-                        : task
-                ),
+                        };
+                    }
+                    return task;
+                }),
             };
         case 'DELETE_COMMENT':
             return {
                 ...state,
-                tasks: state.tasks.map((task) =>
-                    task.id === action.payload.taskId
-                        ? { ...task, comments: (task.comments || []).filter((comment) => comment.id !== action.payload.commentId) }
-                        : task
-                ),
+                tasks: state.tasks.map((task) => {
+                    if (task.id === action.payload.taskId) {
+                        return {
+                            ...task,
+                            comments: task.comments.filter(
+                                (comment) => comment.id !== action.payload.commentId
+                            ),
+                        };
+                    }
+                    return task;
+                }),
             };
         case 'SEARCH_TASKS':
-            // Реализуйте поиск задач по номеру и заголовку
-            return state;
+            const searchQuery = action.payload;
+            const filteredTasks = state.tasks.filter((task) => {
+                return (
+                    task.id.toString().includes(searchQuery) ||
+                    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            });
+            return { ...state, filteredTasks };
+
         default:
             return state;
     }
 };
 
-export default taskReducer;
+export { taskReducer };

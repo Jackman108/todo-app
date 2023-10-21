@@ -3,33 +3,38 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { selectProject, addProject, deleteProject } from '../redux/actions/taskActions';
 import { ProjectSelectionPageProps, ProjectType } from '../[types]/interface';
-import generateUniqueTaskId from '../helpers/generateUniqueTaskId';
+import generateUniqueId from '../helpers/generateUniqueId';
+import ProjectList from '../components/Project/ProjectList';
+import { useNavigate } from 'react-router-dom';
 
 const ProjectSelectionPage: React.FC<ProjectSelectionPageProps> = ({
     projects,
     selectedProject,
-    selectProject,
     addProject,
     deleteProject
 }) => {
     const [newProjectTitle, setNewProjectTitle] = useState('');
+    const navigate = useNavigate();
 
     const handleAddProject = () => {
         // Создаем новый проект и добавляем его в хранилище
         const newProject: ProjectType = {
-            projectId: generateUniqueTaskId(),
+            projectId: generateUniqueId(),
             title: newProjectTitle,
         };
         addProject(newProject);
         setNewProjectTitle('');
-
     };
 
     const handleDeleteProject = (projectId: number) => {
         // Удаляем проект по его ID
+        navigate(`/`);
         deleteProject(projectId);
     };
 
+    const handleProjectClick = (projectId: number) => {
+        navigate(`/tasks/${projectId}`);
+    };
 
     return (
         <div>
@@ -38,13 +43,16 @@ const ProjectSelectionPage: React.FC<ProjectSelectionPageProps> = ({
                 {projects?.map((project) => (
                     <li
                         key={project.projectId}
-                        onClick={() => selectProject(project)}
+
                         style={{
                             cursor: 'pointer',
                             fontWeight: selectedProject && selectedProject.projectId === project.projectId ? 'bold' : 'normal',
                         }}
+                    ><div
+                        onClick={() => handleProjectClick(project.projectId)}
                     >
-                        {project.title}
+                            <ProjectList projects={[project]} />
+                        </div>
                         <button onClick={() => handleDeleteProject(project.projectId)}>Удалить</button>
                     </li>
                 ))}
@@ -64,8 +72,8 @@ const ProjectSelectionPage: React.FC<ProjectSelectionPageProps> = ({
 };
 
 const mapStateToProps = (state: any) => ({
-    selectedProject: state.tasks.selectedProject,
-    projects: state.tasks.projects,
+    selectedProject: state.projects.selectedProject,
+    projects: state.projects.projects,
 });
 
 const mapDispatchToProps = {

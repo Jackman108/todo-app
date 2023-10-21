@@ -9,6 +9,7 @@ export interface TaskType {
     timeInWork: string;
     endDate: string;
     priority: string;
+    files: [],
 }
 export interface SubtaskType {
     id: number;

@@ -1,7 +1,9 @@
 import { createStore, combineReducers } from 'redux';
-import taskReducer from '../reducers/taskReducer';
+import {taskReducer} from '../reducers/taskReducer';
+import { projectReducer} from '../reducers/projectReducer';
 
 const rootReducer = combineReducers({
+    projects: projectReducer,
     tasks: taskReducer,
 });
 
